@@ -43,6 +43,7 @@
               p.hpkgs.hlint
               p.pkgs.git
               p.pkgs.jq
+              p.pkgs.powershell
             ];
 
             shellHook = ''

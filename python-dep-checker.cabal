@@ -16,6 +16,11 @@ extra-source-files: README.md
                     structure-lint.json
                     Dockerfile
                     .dockerignore
+                    docs/windows-podman.md
+                    scripts/podman-build.ps1
+                    scripts/podman-build.cmd
+                    scripts/podman-run.ps1
+                    scripts/podman-run.cmd
                     examples/README.md
                     examples/notebook.ipynb
                     examples/script.py

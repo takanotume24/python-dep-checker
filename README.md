@@ -45,7 +45,8 @@ cabal build all
 nix develop
 ```
 
-devShell には GHC 9.10.3、cabal-install、HLS、ormolu、hlint が入ります。
+devShell には GHC 9.10.3、cabal-install、HLS、ormolu、hlint、
+PowerShell 7（`pwsh`）が入ります。
 `structure-lint` は `cabal.project` の `source-repository-package` として取得し、
 `cabal build all` でビルドされます。
 
@@ -109,6 +110,23 @@ make docker-run ARGS="examples/script.py --root examples"
 `--absolute` を付けた場合、出力されるのはコンテナ内のパス（例:
 `/work/examples/...`）です。ホスト側の絶対パスが必要な場合は、通常どおり
 `cabal run` / `nix build` したバイナリを使ってください。
+
+### Podman（Windows）
+
+Docker がなく Podman だけが入っている Windows でも、同梱の PowerShell スクリプトで
+ビルドと実行ができます。ホストに Nix / GHC / Docker は不要です。
+
+```powershell
+# イメージをビルド
+.\scripts\podman-build.cmd
+
+# カレントディレクトリを /work にマウントして実行
+.\scripts\podman-run.cmd examples\script.py
+.\scripts\podman-run.cmd examples\notebook.ipynb --root examples
+```
+
+前提、自分のプロジェクトでの使い方、パスの扱い、トラブルシューティングは
+[docs/windows-podman.md](docs/windows-podman.md) を参照してください。
 
 ### オプション
 
@@ -184,5 +202,7 @@ src/PythonDepChecker/
   ToDisplayPath.hs                   出力パスの整形
   Run.hs                             CLI の実行
 examples/                            実際に動く .ipynb / .py のサンプル
+docs/windows-podman.md               Podman だけが入った Windows での実行手順
+scripts/                             Podman 用の Windows スクリプト
 test/                                 hspec テスト
 ```
