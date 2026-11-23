@@ -83,6 +83,33 @@ cabal run python-dep-checker -- examples/script.py
 
 `nix build` 済みなら `./result/bin/python-dep-checker` を直接使えます。
 
+### Docker で実行
+
+Docker イメージは Nix で実行ファイルをビルドし、実行に必要な共有ライブラリだけを
+Debian ベースの最終イメージにコピーします。初回ビルドは Nix の依存取得と GHC による
+コンパイルが走るため、数分かかることがあります。
+
+```bash
+# イメージをビルド
+docker build -t python-dep-checker .
+
+# カレントディレクトリを /work にマウントして実行
+docker run --rm -v "$PWD:/work" python-dep-checker examples/script.py
+docker run --rm -v "$PWD:/work" python-dep-checker examples/notebook.ipynb
+```
+
+Makefile 経由なら次の 1 コマンドでビルドと実行ができます。
+
+```bash
+make docker-run
+make docker-run ARGS="examples/notebook.ipynb"
+make docker-run ARGS="examples/script.py --root examples"
+```
+
+`--absolute` を付けた場合、出力されるのはコンテナ内のパス（例:
+`/work/examples/...`）です。ホスト側の絶対パスが必要な場合は、通常どおり
+`cabal run` / `nix build` したバイナリを使ってください。
+
 ### オプション
 
 ```

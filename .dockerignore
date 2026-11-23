@@ -1,0 +1,12 @@
+.git
+.gitignore
+dist-newstyle
+result
+result-*
+.envrc
+.direnv
+.ghc.environment.*
+*.hi
+*.o
+__pycache__
+.ipynb_checkpoints
