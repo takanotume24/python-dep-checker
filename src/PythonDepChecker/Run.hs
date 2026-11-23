@@ -8,7 +8,7 @@ import System.IO (hPutStrLn, stderr)
 
 run :: Options -> IO ()
 run options = do
-  result <- collectDependencies (optionsRoots options) (optionsNotebook options)
+  result <- collectDependencies (optionsRoots options) (optionsEntrypoint options)
   case result of
     Left err -> do
       hPutStrLn stderr err

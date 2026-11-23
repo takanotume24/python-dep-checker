@@ -1,3 +1,5 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 module Test.PythonDepChecker.ResolveImportSpec (spec) where
 
 import Data.List (sort)

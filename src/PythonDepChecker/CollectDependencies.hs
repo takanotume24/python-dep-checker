@@ -1,20 +1,18 @@
 module PythonDepChecker.CollectDependencies (collectDependencies) where
 
-import Control.Exception (IOException, try)
 import qualified Data.Set as Set
-import Data.Text (Text)
-import qualified Data.Text.IO as TIO
 import PythonDepChecker.ExtractImports (extractImports)
-import PythonDepChecker.ReadNotebookSources (readNotebookSources)
+import PythonDepChecker.ReadEntrySources (readEntrySources)
+import PythonDepChecker.ReadPythonFile (readPythonFile)
 import PythonDepChecker.ResolveImport (resolveImport)
 
 collectDependencies :: [FilePath] -> FilePath -> IO (Either String [FilePath])
-collectDependencies roots notebook = do
-  sources <- readNotebookSources notebook
+collectDependencies roots entrypoint = do
+  sources <- readEntrySources entrypoint
   case sources of
     Left err -> pure (Left err)
     Right code -> do
-      initial <- resolveRefs notebook (concatMap extractImports code)
+      initial <- resolveRefs entrypoint (concatMap extractImports code)
       seen <- walk Set.empty initial
       pure (Right (Set.toList seen))
   where
@@ -28,10 +26,6 @@ collectDependencies roots notebook = do
           content <- readPythonFile path
           refs <-
             case content of
-              Nothing -> pure []
-              Just text -> resolveRefs path (extractImports text)
+              Left _ -> pure []
+              Right text -> resolveRefs path (extractImports text)
           walk (Set.insert path seen) (rest ++ refs)
-
-    readPythonFile path = do
-      result <- try (TIO.readFile path) :: IO (Either IOException Text)
-      pure (either (const Nothing) Just result)

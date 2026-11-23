@@ -1,8 +1,9 @@
 # python-dep-checker
 
-特定の Jupyter notebook（`.ipynb`）から呼び出されている Python ファイルを列挙する CLI です。
-notebook のコードセルに書かれた `import` / `from ... import ...` を静的に解析し、
-ローカルプロジェクト内の `.py` を推移的にたどります。
+特定の Jupyter notebook（`.ipynb`）または Python ファイル（`.py`）から呼び出されている
+Python ファイルを列挙する CLI です。起点ファイルに書かれた
+`import` / `from ... import ...` を静的に解析し、ローカルプロジェクト内の `.py` を
+推移的にたどります。
 
 Haskell で実装し、開発環境の依存は Nix（flake）で解決します。
 ソース構成の検査には
@@ -11,7 +12,7 @@ Haskell で実装し、開発環境の依存は Nix（flake）で解決します
 
 ## できること
 
-- `.ipynb` の `cell_type == "code"` のセルだけを対象にする
+- 起点として `.ipynb`（`cell_type == "code"` のセル）と `.py` / `.pyi` を受け付ける
 - `import a.b`, `import a.b as c`, `from a.b import c`, 相対 import を解釈する
 - コメントや文字列リテラルの中の `import` は無視する
 - 見つかった Python ファイルをさらに解析して、import を推移的にたどる
@@ -61,14 +62,23 @@ nix build
 ## 使い方
 
 ```bash
-# notebook と同じディレクトリを import の探索ルートにする
+# 起点ファイルと同じディレクトリを import の探索ルートにする
 cabal run python-dep-checker -- path/to/notebook.ipynb
+cabal run python-dep-checker -- path/to/script.py
 
 # プロジェクトルートや src を探索ルートに指定する（複数指定可）
 cabal run python-dep-checker -- notebook.ipynb --root . --root src
+cabal run python-dep-checker -- script.py --root . --root src
 
 # 絶対パスで出力する
 cabal run python-dep-checker -- notebook.ipynb --root . --absolute
+```
+
+`examples/` に実際に動くサンプルがあります。
+
+```bash
+cabal run python-dep-checker -- examples/notebook.ipynb
+cabal run python-dep-checker -- examples/script.py
 ```
 
 `nix build` 済みなら `./result/bin/python-dep-checker` を直接使えます。
@@ -76,13 +86,15 @@ cabal run python-dep-checker -- notebook.ipynb --root . --absolute
 ### オプション
 
 ```
-Usage: python-dep-checker NOTEBOOK [OPTIONS]
+Usage: python-dep-checker ENTRYPOINT [OPTIONS]
 
   --root DIR     絶対 import を探すルート（繰り返し指定可）
-                 省略時は notebook のあるディレクトリ
+                 省略時は起点ファイルのあるディレクトリ
   --absolute      CWD からの相対パスではなく絶対パスを出力
   -h, --help     ヘルプを表示
 ```
+
+起点ファイルの拡張子は `.ipynb`、`.py`、`.pyi` を受け付けます。それ以外はエラーになります。
 
 ### import の解決
 
@@ -98,6 +110,7 @@ Usage: python-dep-checker NOTEBOOK [OPTIONS]
 - `src/` レイアウトのプロジェクトでは `--root src` を追加してください。
 - 複数のルートに同じモジュールがある場合は、存在するものをすべて列挙します。
 - 見つからない import（標準ライブラリ、サードパーティ）は単に無視します。
+- `.py` 起点の場合も、起点ファイル自身は出力に含まれません（あくまで依存先のみ）。
 
 ## 制限
 
@@ -131,15 +144,18 @@ make format # ormolu
 app/Main.hs                          CLI のエントリポイント
 src/PythonDepChecker/
   ParseArgs.hs                       引数解析
+  ReadEntrySources.hs                起点ファイルの種類を判定して読む
   ReadNotebookSources.hs             .ipynb からコードセルを読む
+  ReadPythonFile.hs                  .py / .pyi を BOM・改行コードを正規化して読む
   StripPythonStrings.hs              文字列リテラルを除去
   StripPythonComments.hs             コメントを除去
-  JoinContinuations.hs               継続行を 1 つの論理行にまとめる
+  LogicalLines.hs                    継続行を 1 つの論理行にまとめる
   ParseImportLine.hs                 import 文の解析
   ExtractImports.hs                  上記を組み合わせる
   ResolveImport.hs                   import 先のファイル解決
   CollectDependencies.hs             推移的な依存関係の収集
   ToDisplayPath.hs                   出力パスの整形
   Run.hs                             CLI の実行
+examples/                            実際に動く .ipynb / .py のサンプル
 test/                                 hspec テスト
 ```

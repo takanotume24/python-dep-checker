@@ -1,4 +1,6 @@
-module PythonDepChecker.JoinContinuations (logicalLines) where
+{-# LANGUAGE OverloadedStrings #-}
+
+module PythonDepChecker.LogicalLines (logicalLines) where
 
 import Data.Text (Text)
 import qualified Data.Text as T
@@ -6,6 +8,7 @@ import qualified Data.Text as T
 logicalLines :: Text -> [Text]
 logicalLines source = go "" 0 (T.lines source)
   where
+    go :: Text -> Int -> [Text] -> [Text]
     go current _ [] = [current | not (T.null (T.strip current))]
     go current depth (line : rest) =
       let combined = if T.null current then line else current <> "\n" <> line

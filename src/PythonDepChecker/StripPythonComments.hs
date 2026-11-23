@@ -1,3 +1,5 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 module PythonDepChecker.StripPythonComments (stripPythonComments) where
 
 import Data.Text (Text)

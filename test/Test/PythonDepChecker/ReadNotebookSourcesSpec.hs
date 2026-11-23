@@ -2,6 +2,7 @@
 
 module Test.PythonDepChecker.ReadNotebookSourcesSpec (spec) where
 
+import qualified Data.ByteString as B
 import qualified Data.ByteString.Char8 as BS
 import PythonDepChecker.ReadNotebookSources (readNotebookSources)
 import System.FilePath ((</>))
@@ -25,6 +26,17 @@ spec = describe "readNotebookSources" $ do
       BS.writeFile
         path
         "{\"cells\":[{\"cell_type\":\"code\",\"source\":\"import a\\n\"}]}"
+      result <- readNotebookSources path
+      result `shouldBe` Right ["import a\n"]
+
+  it "accepts a notebook with a UTF-8 BOM" $
+    withSystemTempDirectory "notebook" $ \directory -> do
+      let path = directory </> "sample.ipynb"
+      B.writeFile
+        path
+        ( B.pack [0xEF, 0xBB, 0xBF]
+            <> BS.pack "{\"cells\":[{\"cell_type\":\"code\",\"source\":\"import a\\n\"}]}"
+        )
       result <- readNotebookSources path
       result `shouldBe` Right ["import a\n"]
 

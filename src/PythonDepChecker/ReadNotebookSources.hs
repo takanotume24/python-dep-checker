@@ -17,10 +17,14 @@ readNotebookSources path = do
   pure $ case result of
     Left err -> Left (path ++ ": " ++ show err)
     Right bytes ->
-      case eitherDecodeStrict' bytes of
+      case eitherDecodeStrict' (stripUtf8Bom bytes) of
         Left err -> Left (path ++ ": invalid notebook JSON: " ++ err)
         Right value -> Right (cellSources value)
   where
+    stripUtf8Bom bytes
+      | BS.take 3 bytes == BS.pack [0xEF, 0xBB, 0xBF] = BS.drop 3 bytes
+      | otherwise = bytes
+
     cellSources = \case
       Object object ->
         case KM.lookup "cells" object of

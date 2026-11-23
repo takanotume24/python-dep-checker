@@ -1,12 +1,12 @@
 cabal-version:      3.0
 name:               python-dep-checker
 version:            0.1.0.0
-synopsis:           List Python files imported by a Jupyter notebook
+synopsis:           List Python files imported by a notebook or Python entrypoint
 description:
-  Reads one Jupyter notebook (.ipynb), extracts the import statements from
-  its code cells, resolves them against local project roots, and follows
+  Reads one Jupyter notebook (.ipynb) or Python file (.py), extracts the
+  import statements, resolves them against local project roots, and follows
   imports of the discovered Python files. The result is a sorted list of
-  local Python files that the notebook depends on.
+  local Python files that the entrypoint depends on.
 license:            MIT
 license-file:       LICENSE
 author:             takanotume24
@@ -14,6 +14,14 @@ maintainer:         takanotume24
 build-type:         Simple
 extra-source-files: README.md
                     structure-lint.json
+                    examples/README.md
+                    examples/notebook.ipynb
+                    examples/script.py
+                    examples/demo_pkg/__init__.py
+                    examples/demo_pkg/core.py
+                    examples/demo_pkg/sibling.py
+                    examples/demo_pkg/utils/__init__.py
+                    examples/demo_pkg/utils/helpers.py
 
 common common-settings
   default-language: GHC2024
@@ -25,12 +33,14 @@ library
       PythonDepChecker.CollectDependencies
       PythonDepChecker.ExtractImports
       PythonDepChecker.ImportRef
-      PythonDepChecker.JoinContinuations
+      PythonDepChecker.LogicalLines
       PythonDepChecker.Options
       PythonDepChecker.ParseArgs
       PythonDepChecker.ParseImportLine
       PythonDepChecker.PrintUsage
+      PythonDepChecker.ReadEntrySources
       PythonDepChecker.ReadNotebookSources
+      PythonDepChecker.ReadPythonFile
       PythonDepChecker.ResolveImport
       PythonDepChecker.Run
       PythonDepChecker.StripPythonComments
@@ -63,8 +73,13 @@ test-suite python-dep-checker-test
   main-is:          Spec.hs
   other-modules:
       Test.PythonDepChecker.CollectDependenciesSpec
+      Test.PythonDepChecker.ExamplesSpec
       Test.PythonDepChecker.ExtractImportsSpec
+      Test.PythonDepChecker.LogicalLinesSpec
+      Test.PythonDepChecker.ParseArgsSpec
+      Test.PythonDepChecker.ReadEntrySourcesSpec
       Test.PythonDepChecker.ReadNotebookSourcesSpec
+      Test.PythonDepChecker.ReadPythonFileSpec
       Test.PythonDepChecker.ResolveImportSpec
   build-depends:
       base >=4.19 && <5

@@ -1,7 +1,7 @@
 module PythonDepChecker.Options (Options (..)) where
 
 data Options = Options
-  { optionsNotebook :: FilePath
+  { optionsEntrypoint :: FilePath
   , optionsRoots :: [FilePath]
   , optionsAbsolute :: Bool
   }
