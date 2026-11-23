@@ -1,0 +1,82 @@
+cabal-version:      3.0
+name:               python-dep-checker
+version:            0.1.0.0
+synopsis:           List Python files imported by a Jupyter notebook
+description:
+  Reads one Jupyter notebook (.ipynb), extracts the import statements from
+  its code cells, resolves them against local project roots, and follows
+  imports of the discovered Python files. The result is a sorted list of
+  local Python files that the notebook depends on.
+license:            MIT
+license-file:       LICENSE
+author:             takanotume24
+maintainer:         takanotume24
+build-type:         Simple
+extra-source-files: README.md
+                    structure-lint.json
+
+common common-settings
+  default-language: GHC2024
+  ghc-options:      -Wall
+
+library
+  hs-source-dirs:   src
+  exposed-modules:
+      PythonDepChecker.CollectDependencies
+      PythonDepChecker.ExtractImports
+      PythonDepChecker.ImportRef
+      PythonDepChecker.JoinContinuations
+      PythonDepChecker.Options
+      PythonDepChecker.ParseArgs
+      PythonDepChecker.ParseImportLine
+      PythonDepChecker.PrintUsage
+      PythonDepChecker.ReadNotebookSources
+      PythonDepChecker.ResolveImport
+      PythonDepChecker.Run
+      PythonDepChecker.StripPythonComments
+      PythonDepChecker.StripPythonStrings
+      PythonDepChecker.ToDisplayPath
+  build-depends:
+      base >=4.19 && <5
+    , aeson >=2.1
+    , bytestring
+    , containers
+    , directory
+    , filepath
+    , text
+    , vector
+  default-language: GHC2024
+  ghc-options:      -Wall
+
+executable python-dep-checker
+  hs-source-dirs:   app
+  main-is:          Main.hs
+  build-depends:
+      base >=4.19 && <5
+    , python-dep-checker
+  default-language: GHC2024
+  ghc-options:      -Wall
+
+test-suite python-dep-checker-test
+  type:             exitcode-stdio-1.0
+  hs-source-dirs:   test
+  main-is:          Spec.hs
+  other-modules:
+      Test.PythonDepChecker.CollectDependenciesSpec
+      Test.PythonDepChecker.ExtractImportsSpec
+      Test.PythonDepChecker.ReadNotebookSourcesSpec
+      Test.PythonDepChecker.ResolveImportSpec
+  build-depends:
+      base >=4.19 && <5
+    , aeson
+    , bytestring
+    , directory
+    , filepath
+    , hspec >=2.7 && <3
+    , python-dep-checker
+    , temporary
+    , text
+  build-tool-depends:
+      hspec-discover:hspec-discover
+  default-language: GHC2024
+  ghc-options:      -Wall

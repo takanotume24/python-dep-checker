@@ -1,0 +1,8 @@
+packages: .
+
+source-repository-package
+  type: git
+  location: https://github.com/takanotume24/haskell-structure-lint.git
+  tag: 5418b73a0b84614e4ff2fc833b496e5104511b33
+
+constraints: haskell-src-exts >=1.24

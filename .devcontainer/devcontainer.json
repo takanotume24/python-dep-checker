@@ -1,0 +1,30 @@
+{
+  "name": "python-dep-checker",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu-24.04",
+  "features": {
+    "ghcr.io/devcontainers/features/nix:1": {
+      "multiUser": true,
+      "version": "latest",
+      "extraNixConfig": "experimental-features = nix-command flakes"
+    }
+  },
+  "containerEnv": {
+    "NIX_CONFIG": "experimental-features = nix-command flakes"
+  },
+  "remoteEnv": {
+    "PATH": "${containerEnv:PATH}:/nix/var/nix/profiles/default/bin:/home/vscode/.opencode/bin"
+  },
+  "mounts": [
+    "source=${localEnv:HOME}/.config/opencode,target=/home/vscode/.config/opencode,type=bind,readonly"
+  ],
+  "postCreateCommand": "bash -lc \"curl -fsSL https://opencode.ai/v2/install | bash && nix develop --command bash -lc 'cabal update'\"",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "haskell.haskell",
+        "jnoortheen.nix-ide"
+      ]
+    }
+  },
+  "remoteUser": "vscode"
+}
